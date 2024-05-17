@@ -1,0 +1,182 @@
+inputForms:
+  - layout:
+      pages:
+        - id: page_uln701dh
+          sections:
+            - id: section_boe8uicg
+              fields:
+                - id: vmName
+                  display: textField
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_5391eadf
+              fields:
+                - id: memory
+                  display: decimalField
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+          title: General
+    schema:
+      vmName:
+        id: vmName
+        type:
+          dataType: string
+        label: vmName
+        constraints:
+          required: false
+      memory:
+        id: memory
+        type:
+          dataType: decimal
+        label: memory
+    options:
+      externalValidations: []
+    itemId: ''
+workflowSchema:
+  display-name: Change_RAM_test_string
+  description: Kayden testing to change VM's RAM
+  position:
+    'y': 0
+    x: 60
+  input:
+    param:
+      - name: memory
+        type: number
+      - name: vmName
+        type: string
+  output: {}
+  attrib:
+    - type: 'VC:VirtualMachine'
+      name: vm
+  workflow-item:
+    - in-binding: {}
+      out-binding: {}
+      position:
+        'y': 220
+        x: 460
+      name: item0
+      type: end
+      end-mode: '0'
+      comparator: 0
+    - display-name: vmStatus
+      script:
+        value: "var vcVm = VcPlugin.getAllVirtualMachines(null, \"xpath:matches(name, '(?i)\" + vmName + \"')\")\r\n\r\nvar vm = vcVm[0]\r\n\r\nreturn vm.runtime.powerState.value == \"poweredOn\";\r\nSystem.log(vm.name);"
+        encoded: false
+      in-binding:
+        bind:
+          - name: vmName
+            type: string
+            export-name: vmName
+      out-binding: {}
+      description: Custom decision based on a custom script.
+      position:
+        'y': 130
+        x: 20
+      name: item2
+      out-name: item4
+      alt-out-name: item4
+      type: custom-condition
+      comparator: 0
+    - display-name: changeVMRAM
+      script:
+        value: >
+          //Auto generated script, cannot be modified !
+
+          actionResult =
+          System.getModule("com.vmware.library.vc.vm").changeVMRAM(vm,memory);
+        encoded: false
+      in-binding:
+        bind:
+          - description: The VM to change
+            name: vm
+            type: 'VC:VirtualMachine'
+          - description: New memory value
+            name: memory
+            type: number
+            export-name: memory
+      out-binding:
+        bind:
+          - name: actionResult
+            type: 'VC:Task'
+            export-name: ''
+      description: Add a note to the workflow schema.
+      position:
+        'y': 140
+        x: 240
+      name: item4
+      out-name: item5
+      type: task
+      script-module: com.vmware.library.vc.vm/changeVMRAM
+      comparator: 0
+    - display-name: startVM
+      script:
+        value: >
+          //Auto generated script, cannot be modified !
+
+          actionResult =
+          System.getModule("com.vmware.library.vc.vm.power").startVM(vm,host);
+        encoded: false
+      in-binding:
+        bind:
+          - description: VM to start or resume
+            name: vm
+            type: 'VC:VirtualMachine'
+          - description: >-
+              [Optional] The host where the virtual machine is to be powered on.
+              If no host is specified, the current associated host is used. This
+              field must specify a host that is part of the same compute
+              resource that the virtual machine is currently associated with. If
+              this host is not compatible, the current host association is
+              used. 
+            name: host
+            type: 'VC:HostSystem'
+            export-name: ''
+      out-binding:
+        bind:
+          - name: actionResult
+            type: 'VC:Task'
+            export-name: ''
+      description: Add a note to the workflow schema.
+      position:
+        'y': 140
+        x: 420
+      name: item5
+      out-name: item0
+      type: task
+      script-module: com.vmware.library.vc.vm.power/startVM
+      comparator: 0
+    - display-name: getVM
+      script:
+        value: "var vcVm = VcPlugin.getAllVirtualMachines(null, \"xpath:matches(name, '(?i)\" + vmName + \"')\")\r\n\r\nvar vm = vcVm[0]\r\n\r\nSystem.log(\"Disk of \" + vm + \"will be updated.\");"
+        encoded: false
+      in-binding:
+        bind:
+          - name: vmName
+            type: string
+            export-name: vmName
+      out-binding:
+        bind:
+          - name: vm
+            type: 'VC:VirtualMachine'
+            export-name: vm
+      description: Simple task with custom script capability.
+      position:
+        'y': 70
+        x: 20
+      name: item6
+      out-name: item2
+      type: task
+      comparator: 0
+  root-name: item6
+  object-name: 'workflow:name=generic'
+  id: cd57162e-5a75-43c4-b68a-1ec4761fedbb
+  version: 0.0.0
+  api-version: 6.0.0
+  allowed-operations: vef
+  restartMode: 1
+  resumeFromFailedMode: 0
+  editor-version: '2.0'
