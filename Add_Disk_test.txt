@@ -1,0 +1,174 @@
+inputForms:
+  - layout:
+      pages:
+        - id: page_0dpw452c
+          sections:
+            - id: section_rzb6293h
+              fields:
+                - id: vm
+                  display: valuePickerTree
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_gn5ek7iu
+              fields:
+                - id: datastore
+                  display: valuePickerTree
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_qqa060os
+              fields:
+                - id: diskSize
+                  display: decimalField
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_kj53e2b4
+              fields:
+                - id: diskIndex
+                  display: decimalField
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_0z2q1euo
+              fields:
+                - id: diskMode
+                  display: valuePicker
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_omuazkb6
+              fields:
+                - id: thinProvisioned
+                  display: checkbox
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+          title: General
+    schema:
+      vm:
+        id: vm
+        type:
+          dataType: reference
+          referenceType: 'VC:VirtualMachine'
+        label: vm
+        constraints:
+          required: false
+      datastore:
+        id: datastore
+        type:
+          dataType: reference
+          referenceType: 'VC:Datastore'
+        label: datastore
+        constraints:
+          required: false
+      diskSize:
+        id: diskSize
+        type:
+          dataType: decimal
+        label: diskSize
+      diskIndex:
+        id: diskIndex
+        type:
+          dataType: decimal
+        label: diskIndex
+        constraints:
+          required: false
+      diskMode:
+        id: diskMode
+        type:
+          dataType: reference
+          referenceType: 'VC:VirtualDiskMode'
+        label: diskMode
+        constraints:
+          required: false
+      thinProvisioned:
+        id: thinProvisioned
+        type:
+          dataType: boolean
+        label: thinProvisioned
+        constraints:
+          required: false
+    options:
+      externalValidations: []
+    itemId: ''
+workflowSchema:
+  display-name: Add_Disk_test
+  description: Kayden testing to add disk to vm
+  position:
+    'y': 50
+    x: 100
+  input:
+    param:
+      - name: vm
+        type: 'VC:VirtualMachine'
+      - name: datastore
+        type: 'VC:Datastore'
+      - name: diskSize
+        type: number
+      - name: diskIndex
+        type: number
+      - name: diskMode
+        type: 'VC:VirtualDiskMode'
+      - name: thinProvisioned
+        type: boolean
+  output: {}
+  attrib: []
+  workflow-item:
+    - in-binding: {}
+      out-binding: {}
+      position:
+        'y': 50
+        x: 440
+      name: item0
+      type: end
+      end-mode: '0'
+      comparator: 0
+    - display-name: addDisk
+      script:
+        value: "var configSpec = new VcVirtualMachineConfigSpec();\r\nvar deviceConfigSpecs = new Array();\r\nvar deviceConfigSpec;\r\n\r\n// Add/Create the disk\r\ndeviceConfigSpec = System.getModule(\"com.vmware.library.vc.vm.spec.config.device\").createVirtualDiskFlatVer2ConfigSpec(\r\n\tdiskSize, datastore, diskIndex, VcVirtualDiskMode.fromString(diskMode.name), thinProvisioned );\r\ndeviceConfigSpecs[0] = deviceConfigSpec;\r\n\r\n// List of devices\r\nconfigSpec.deviceChange = deviceConfigSpecs;\r\n\r\n// Launch the reconfigVM task\r\ntask = vm.reconfigVM_Task( configSpec );\r\n"
+        encoded: false
+      in-binding:
+        bind:
+          - name: vm
+            type: 'VC:VirtualMachine'
+            export-name: vm
+          - name: diskSize
+            type: number
+            export-name: diskSize
+          - name: diskIndex
+            type: number
+            export-name: diskIndex
+          - name: diskMode
+            type: 'VC:VirtualDiskMode'
+            export-name: diskMode
+          - name: datastore
+            type: 'VC:Datastore'
+            export-name: datastore
+          - name: thinProvisioned
+            type: boolean
+            export-name: thinProvisioned
+      out-binding: {}
+      description: Simple task with custom script capability.
+      position:
+        'y': 60
+        x: 220
+      name: item1
+      out-name: item0
+      type: task
+      comparator: 0
+  root-name: item1
+  object-name: 'workflow:name=generic'
+  id: b4dbb635-8e5d-4831-8abc-c4d2f90c035a
+  version: 0.0.0
+  api-version: 6.0.0
+  restartMode: 1
+  resumeFromFailedMode: 0
+  editor-version: '2.0'
