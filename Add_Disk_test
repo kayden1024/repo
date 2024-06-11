@@ -1,0 +1,247 @@
+inputForms:
+  - schema:
+      vm:
+        id: vm
+        type:
+          dataType: reference
+          referenceType: 'VC:VirtualMachine'
+        label: vm
+        constraints:
+          required: false
+      datastore:
+        id: datastore
+        type:
+          dataType: reference
+          referenceType: 'VC:Datastore'
+        label: datastore
+        constraints:
+          required: false
+      diskSize:
+        id: diskSize
+        type:
+          dataType: decimal
+        label: diskSize
+      diskIndex:
+        id: diskIndex
+        type:
+          dataType: decimal
+        label: diskIndex
+        constraints:
+          required: false
+      diskMode:
+        id: diskMode
+        type:
+          dataType: reference
+          referenceType: 'VC:VirtualDiskMode'
+        label: diskMode
+        constraints:
+          required: false
+      thinProvisioned:
+        id: thinProvisioned
+        type:
+          dataType: boolean
+        label: thinProvisioned
+        constraints:
+          required: false
+      scsiBusNumber:
+        id: scsiBusNumber
+        type:
+          dataType: decimal
+        label: scsiBusNumber
+        constraints:
+          required: false
+    layout:
+      pages:
+        - id: page_0dpw452c
+          sections:
+            - id: section_rzb6293h
+              fields:
+                - id: vm
+                  display: valuePickerTree
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_gn5ek7iu
+              fields:
+                - id: datastore
+                  display: valuePickerTree
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_qqa060os
+              fields:
+                - id: diskSize
+                  display: decimalField
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_kj53e2b4
+              fields:
+                - id: diskIndex
+                  display: decimalField
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_0z2q1euo
+              fields:
+                - id: diskMode
+                  display: valuePicker
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_omuazkb6
+              fields:
+                - id: thinProvisioned
+                  display: checkbox
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_2djw13fh
+              fields:
+                - id: scsiBusNumber
+                  display: decimalField
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+          title: General
+    options:
+      externalValidations: []
+    itemId: ''
+workflowSchema:
+  display-name: Add_Disk_test
+  description: Kayden testing to add disk to vm
+  position:
+    'y': 30
+    x: 80
+  input:
+    param:
+      - name: vm
+        type: 'VC:VirtualMachine'
+      - name: datastore
+        type: 'VC:Datastore'
+      - name: diskSize
+        type: number
+      - name: diskIndex
+        type: number
+      - name: diskMode
+        type: 'VC:VirtualDiskMode'
+      - name: thinProvisioned
+        type: boolean
+      - name: scsiBusNumber
+        type: number
+  output: {}
+  attrib:
+    - type: 'VC:Task'
+      name: task
+    - value:
+        number:
+          value: 1
+      type: number
+      name: pollRate
+    - value:
+        boolean:
+          value: false
+      type: boolean
+      name: progress
+    - value:
+        number:
+          value: 0
+      type: number
+      name: scsiControllerKey
+  workflow-item:
+    - in-binding: {}
+      out-binding: {}
+      position:
+        'y': 120
+        x: 220
+      name: item0
+      type: end
+      end-mode: '0'
+      comparator: 0
+    - display-name: addDisk
+      script:
+        value: "var configSpec = new VcVirtualMachineConfigSpec();\r\nvar deviceConfigSpecs = new Array();\r\nvar deviceConfigSpec;\r\n\r\n// Add/Create the disk\r\ndeviceConfigSpec = System.getModule(\"com.vmware.library.vc.vm.spec.config.device\").createVirtualDiskFlatVer2ConfigSpec(\r\n\tdiskSize, datastore, diskIndex, VcVirtualDiskMode.fromString(diskMode.name), thinProvisioned );\r\ndeviceConfigSpecs[0] = deviceConfigSpec;\r\n\r\n// List of devices\r\nconfigSpec.deviceChange = deviceConfigSpecs;\r\n\r\n// Launch the reconfigVM task\r\ntask = vm.reconfigVM_Task( configSpec );\r\n"
+        encoded: false
+      in-binding:
+        bind:
+          - name: vm
+            type: 'VC:VirtualMachine'
+            export-name: vm
+          - name: diskSize
+            type: number
+            export-name: diskSize
+          - name: diskIndex
+            type: number
+            export-name: diskIndex
+          - name: diskMode
+            type: 'VC:VirtualDiskMode'
+            export-name: diskMode
+          - name: datastore
+            type: 'VC:Datastore'
+            export-name: datastore
+          - name: thinProvisioned
+            type: boolean
+            export-name: thinProvisioned
+      out-binding: {}
+      description: Simple task with custom script capability.
+      position:
+        'y': 130
+        x: 340
+      name: item1
+      out-name: item0
+      type: task
+      comparator: 0
+    - display-name: Check Disk Size
+      script:
+        value: "if (diskSize < 0.01 ) {\r\n\tthrow (\"Error, invalid parameter. Disk size should be no less than 0.01 \");\r\n}"
+        encoded: false
+      in-binding:
+        bind:
+          - name: diskSize
+            type: number
+            export-name: diskSize
+      out-binding: {}
+      description: Simple task with custom script capability.
+      position:
+        'y': 40
+        x: 180
+      name: item3
+      out-name: item4
+      type: task
+      comparator: 0
+    - display-name: RetrieveSCSi
+      script:
+        value: "scsiControllerKey = -1;\r\nvar devices = vm.config.hardware.device;\r\nvar isScsiBusNumberInvalid = true;\r\nif(scsiBusNumber==null || scsiBusNumber<0)\r\n\tscsiBusNumber=0;\r\nif ( devices != null )  {\r\n\tfor ( device in devices )  {\r\n\t\tif ( devices[device] instanceof VcVirtualBusLogicController || devices[device] instanceof VcVirtualLsiLogicController \r\n\t\t|| devices[device] instanceof VcParaVirtualSCSIController || devices[device] instanceof VcVirtualLsiLogicSASController )  {\r\n\t\t\tif(scsiBusNumber==devices[device].busNumber){\r\n\t\t\t\tscsiControllerKey = devices[device].key;\r\n\t\t\t\tisScsiBusNumberInvalid = false;\r\n\t\t\t\tSystem.log( \"SCSI controller found. (Key: \" + scsiControllerKey + \")\" );\r\n\t\t\t\tbreak;\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n}\r\nif(isScsiBusNumberInvalid){\r\n\tSystem.log( \"SCSI controller not found. The bus number entered is invalid\" );\r\n}"
+        encoded: false
+      in-binding:
+        bind:
+          - name: vm
+            type: 'VC:VirtualMachine'
+            export-name: vm
+          - name: scsiBusNumber
+            type: number
+            export-name: scsiBusNumber
+      out-binding: {}
+      description: Simple task with custom script capability.
+      position:
+        'y': 40
+        x: 340
+      name: item4
+      out-name: item1
+      type: task
+      comparator: 0
+  root-name: item3
+  object-name: 'workflow:name=generic'
+  id: b4dbb635-8e5d-4831-8abc-c4d2f90c035a
+  version: 0.0.0
+  api-version: 6.0.0
+  restartMode: 1
+  resumeFromFailedMode: 0
+  editor-version: '2.0'
