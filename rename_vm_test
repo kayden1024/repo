@@ -1,0 +1,92 @@
+inputForms:
+  - schema:
+      vm:
+        id: vm
+        type:
+          dataType: reference
+          referenceType: 'VC:VirtualMachine'
+        label: vm
+        constraints:
+          required: false
+      newName:
+        id: newName
+        type:
+          dataType: string
+        label: newName
+        constraints:
+          required: false
+    layout:
+      pages:
+        - id: page_jimioxwf
+          title: General
+          sections:
+            - id: section_idkjc69s
+              fields:
+                - id: vm
+                  display: valuePickerTree
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_086q5djh
+              fields:
+                - id: newName
+                  display: textField
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+    itemId: ''
+workflowSchema:
+  display-name: Rename_vm_test
+  description: Kayden testing to rename a vm
+  position:
+    'y': 50
+    x: 100
+  input:
+    param:
+      - name: vm
+        type: 'VC:VirtualMachine'
+      - name: newName
+        type: string
+  output: {}
+  attrib: []
+  workflow-item:
+    - in-binding: {}
+      out-binding: {}
+      position:
+        'y': 50
+        x: 480
+      name: item0
+      type: end
+      end-mode: '0'
+      comparator: 0
+    - display-name: RenameVM
+      script:
+        value: "try {\r\n\ttask = vm.rename_Task(newName);\r\n}\r\ncatch (ex) {\r\n\tSystem.error(\"Error when renaming VM. Reason: \" + ex);\r\n\tServer.error(\"Error when renaming VM. Reason: \" + ex);\r\n\ttmpErrorMessage = \"Error when renaming VM. Reason: \" + ex;\r\n}"
+        encoded: false
+      in-binding:
+        bind:
+          - name: vm
+            type: 'VC:VirtualMachine'
+            export-name: vm
+          - name: newName
+            type: string
+            export-name: newName
+      out-binding: {}
+      description: Simple task with custom script capability.
+      position:
+        'y': 60
+        x: 180
+      name: item1
+      out-name: item0
+      type: task
+      comparator: 0
+  root-name: item1
+  object-name: 'workflow:name=generic'
+  id: 057eacf8-dc4b-4c2a-9e7e-9d1e4f23b79e
+  version: 0.0.0
+  api-version: 6.0.0
+  restartMode: 1
+  resumeFromFailedMode: 0
+  editor-version: '2.0'
