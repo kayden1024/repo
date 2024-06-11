@@ -1,0 +1,191 @@
+inputForms:
+  - layout:
+      pages:
+        - id: page_csca9pbq
+          sections:
+            - id: section_jbqmdjfl
+              fields:
+                - id: vm
+                  display: valuePickerTree
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_r7bxlsqs
+              fields:
+                - id: name
+                  display: textField
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_r7zzq7h2
+              fields:
+                - id: description
+                  display: textField
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_dxojhwiu
+              fields:
+                - id: memory
+                  display: checkbox
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+            - id: section_7hcugv87
+              fields:
+                - id: quiesce
+                  display: checkbox
+                  signpostPosition: right-middle
+                  state:
+                    visible: true
+                    read-only: false
+          title: General
+    schema:
+      vm:
+        id: vm
+        type:
+          dataType: reference
+          referenceType: 'VC:VirtualMachine'
+        label: vm
+        constraints:
+          required: false
+      name:
+        id: name
+        type:
+          dataType: string
+        label: name
+      description:
+        id: description
+        type:
+          dataType: string
+        label: description
+        constraints:
+          required: false
+      memory:
+        id: memory
+        type:
+          dataType: boolean
+        label: memory
+        constraints:
+          required: false
+      quiesce:
+        id: quiesce
+        type:
+          dataType: boolean
+        label: quiesce
+        constraints:
+          required: false
+    options:
+      externalValidations: []
+    itemId: ''
+workflowSchema:
+  display-name: Create_Snapshot_test
+  description: Kayden testing to create snapshot
+  position:
+    'y': 50
+    x: 100
+  input:
+    param:
+      - name: vm
+        type: 'VC:VirtualMachine'
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - description: 'If TRUE, the snapshot includes a memory dump.'
+        name: memory
+        type: boolean
+      - name: quiesce
+        type: boolean
+  output:
+    param:
+      - name: snapshot
+        type: 'VC:VirtualMachineSnapshot'
+  attrib:
+    - type: 'VC:Task'
+      name: task
+    - value:
+        boolean:
+          value: false
+      type: boolean
+      name: progress
+    - value:
+        number:
+          value: 2
+      type: number
+      name: pollRate
+  workflow-item:
+    - in-binding: {}
+      out-binding: {}
+      position:
+        'y': 50
+        x: 520
+      name: item0
+      type: end
+      end-mode: '0'
+      comparator: 0
+    - display-name: createSnapshot
+      script:
+        value: >
+          //Auto generated script, cannot be modified !
+
+          actionResult =
+          System.getModule("com.vmware.library.vc.vm.snapshot").createSnapshot(vm,name,description,memory,quiesce);
+        encoded: false
+      in-binding:
+        bind:
+          - description: The VM on which to create a snapshot
+            name: vm
+            type: 'VC:VirtualMachine'
+            export-name: vm
+          - description: >-
+              The name for this snapshot. The name need not be unique for this
+              virtual machine. 
+            name: name
+            type: string
+            export-name: name
+          - description: >-
+              A description for this snapshot. If omitted, a default description
+              may be provided. 
+            name: description
+            type: string
+            export-name: description
+          - description: >-
+              If TRUE, a dump of the internal state of the virtual machine
+              (basically a memory dump) is included in the snapshot. 
+            name: memory
+            type: boolean
+            export-name: memory
+          - description: >-
+              If TRUE and the virtual machine is powered on when the snapshot is
+              taken, VMware Tools is used to quiesce the file system in the
+              virtual machine.
+            name: quiesce
+            type: boolean
+            export-name: ''
+      out-binding:
+        bind:
+          - name: actionResult
+            type: 'VC:Task'
+            export-name: ''
+      description: Add a note to the workflow schema.
+      position:
+        'y': 60
+        x: 200
+      name: item1
+      out-name: item0
+      type: task
+      script-module: com.vmware.library.vc.vm.snapshot/createSnapshot
+      comparator: 0
+  root-name: item1
+  object-name: 'workflow:name=generic'
+  id: 06d99264-ae27-47b8-b952-e2ba77ccaa99
+  version: 0.0.0
+  api-version: 6.0.0
+  restartMode: 1
+  resumeFromFailedMode: 0
+  editor-version: '2.0'
